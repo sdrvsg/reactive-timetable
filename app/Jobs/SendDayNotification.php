@@ -24,6 +24,9 @@ class SendDayNotification implements ShouldQueue
         ini_set('max_execution_time', '0');
         foreach ($this->day->group->chats as $chat) {
 
+            if ($chat->is_blocked)
+                continue;
+
             try {
 
                 $bot->sendImagedMessage(
