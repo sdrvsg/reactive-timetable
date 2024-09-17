@@ -13,7 +13,14 @@ class RetrieveAccount
         $chat_id = $bot->chatId() ?? $bot->callbackQuery()?->message->chat->id ?? $bot->inlineQuery()?->from->id;
         $chat = Chat::query()->where('chat_id', $chat_id)->first();
 
-        if ($chat) Auth::login($chat);
+        if ($chat) {
+
+            Auth::login($chat);
+            $chat->was_online_at = now();
+            $chat->save();
+
+        }
+
         $next($bot);
     }
 }

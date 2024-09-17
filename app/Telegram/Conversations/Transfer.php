@@ -12,8 +12,14 @@ class Transfer extends Conversation
     public function start(Nutgram $bot): void
     {
         $user = Auth::user();
-        $chats = $user->leadership->chats()->whereNot('id', $user->id)->get()->map(fn (Chat $chat) => "<code>$chat->identifier</code>: <a href='tg://user?id={$chat->chat_id}'>Профиль</a>")->implode("\n");
-        $bot->sendImagedMessage("<b>👋 Введите ID вашего одногруппника, чтобы передать ему права старосты (юзернейм копируется при нажатии)</b>\n\n$chats");
+        $chats = $user->leadership
+            ->chats()
+            ->whereNot('id', $user->id)
+            ->get()
+            ->map(fn (Chat $chat) => __('handlers.transfer.chat', ['name' => $chat->identifier, 'id' => $chat->chat_id]))
+            ->implode("\n");
+
+        $bot->sendImagedMessage(__('handlers.transfer.start', ['chats' => $chats]));
         $this->next('chat');
     }
 
@@ -27,13 +33,13 @@ class Transfer extends Conversation
 
         if (!$chat || $chat->group->isNot($group) || $chat->is($user)) {
 
-            $bot->sendImagedMessage("<b>⛔️ Что-то не то ввели</b>");
+            $bot->sendImagedMessage(__('handler.transfer.error'));
             return;
 
         }
 
         $group->leader()->associate($chat)->save();
-        $bot->sendImagedMessage("<b>Отлично!</b>\n\nВы больше не староста 🎉🎉🎉");
+        $bot->sendImagedMessage(__('handlers.transfer.success'));
         $this->end();
     }
 }

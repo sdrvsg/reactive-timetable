@@ -12,19 +12,19 @@ class Commands
     public function __invoke(Nutgram $bot, ?string $param = null): void
     {
         $common = [
-            BotCommand::make('start', 'Информация'),
-            BotCommand::make('timetable', 'Узнать нормальное расписание'),
-            BotCommand::make('group', 'Сменить группу'),
-            BotCommand::make('transfer', 'Передать старосту'),
+            BotCommand::make('start',       __('const.commands.start')),
+            BotCommand::make('timetable',   __('const.commands.timetable')),
+            BotCommand::make('group',       __('const.commands.group')),
+            BotCommand::make('transfer',    __('const.commands.transfer')),
         ];
-        $bot->setMyCommands($common, new BotCommandScopeAllPrivateChats);
 
-        foreach (explode(',', env('TELEGRAM_DEVELOPERS')) as $chat_id)
+        $bot->setMyCommands($common, new BotCommandScopeAllPrivateChats);
+        foreach (explode(',', config('nutgram.developers')) as $chat_id)
             $bot->setMyCommands([
                 ... $common,
-                BotCommand::make('commands', 'Обновить команды'),
+                BotCommand::make('commands', __('const.commands.commands')),
             ], new BotCommandScopeChat($chat_id));
 
-        $bot->sendImagedMessage('Готово');
+        $bot->sendImagedMessage('Done!');
     }
 }

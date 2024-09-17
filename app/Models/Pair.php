@@ -72,11 +72,14 @@ class Pair extends Model
     {
         return Attribute::make(
             get: function (mixed $value, array $attributes) {
-                $n = $this->name ?? 'Предмет не указан';
-                $t = $this->teacher ?? 'Преподаватель не указан';
-                $p = $this->place ?? 'Место проведения не указано';
-                $g = $this->groups ? "\n<i>$this->groups</i>" : '';
-                return "<b>$this->time_string</b>\n$this->icon <b>$n</b>\n$t\n<i>$p</i>$g";
+                return __('timetable.pair.text', [
+                    'time' => $this->time_string,
+                    'icon' => $this->icon,
+                    'name' => $this->name ?? __('timetable.pair.blanks.name'),
+                    'teacher' => $this->teacher ?? __('timetable.pair.blanks.teacher'),
+                    'place' => $this->place ?? __('timetable.pair.blanks.place'),
+                    'groups' => $this->groups ? __('timetable.pair.groups', ['groups' => $this->groups]) : '',
+                ]);
             }
         );
     }
@@ -86,14 +89,14 @@ class Pair extends Model
         return Attribute::make(
             get: function (mixed $value, array $attributes) {
                 return match ($this->number) {
-                    1 => "😵‍💫 $this->number пара (8:00 — 9:35)",
-                    2 => "😵‍💫 $this->number пара (9:45 — 11:20)",
-                    3 => "🙃 $this->number пара (11:30 — 13:05)",
-                    4 => "🙃 $this->number пара (13:30 — 15:05)",
-                    5 => "😞 $this->number пара (15:15 — 16:50)",
-                    6 => "😞 $this->number пара (17:00 — 18:35)",
-                    7 => "🤩 $this->number пара (18:45 — 20:15)",
-                    8 => "🤩 $this->number пара (20:25 — 21:55)",
+                    1 => __('timetable.pair.time', ['icon' => '😵‍💫', 'number' => $this->number, 'time' => '8:00 — 9:35']),
+                    2 => __('timetable.pair.time', ['icon' => '😵‍💫', 'number' => $this->number, 'time' => '9:45 — 11:20']),
+                    3 => __('timetable.pair.time', ['icon' => '🙃', 'number' => $this->number, 'time' => '11:30 — 13:05']),
+                    4 => __('timetable.pair.time', ['icon' => '🙃', 'number' => $this->number, 'time' => '13:30 — 15:05']),
+                    5 => __('timetable.pair.time', ['icon' => '😞', 'number' => $this->number, 'time' => '15:15 — 16:50']),
+                    6 => __('timetable.pair.time', ['icon' => '😞', 'number' => $this->number, 'time' => '17:00 — 18:35']),
+                    7 => __('timetable.pair.time', ['icon' => '🤩', 'number' => $this->number, 'time' => '18:45 — 20:15']),
+                    8 => __('timetable.pair.time', ['icon' => '🤩', 'number' => $this->number, 'time' => '20:25 — 21:55']),
                 };
             }
         );
