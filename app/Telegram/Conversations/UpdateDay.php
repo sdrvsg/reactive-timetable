@@ -20,10 +20,10 @@ class UpdateDay extends ImagedEditableInlineMenu
         $pairs = $day->pairs;
         $buttons = $pairs->map(fn (Pair $pair) => InlineKeyboardButton::make($pair->number, callback_data: "$pair->id@pair"));
 
-        $this->menuText("$day->text\n\n👉 Какую пару нужно изменить?")
+        $this->menuText(__('handlers.day.start', ['timetable' => $day->text]))
             ->clearButtons()
             ->addButtonRow(... $buttons->toArray())
-            ->addButtonRow(InlineKeyboardButton::make('Назад', callback_data: "{$day->date->format('d.m.Y')}@timetable"))
+            ->addButtonRow(InlineKeyboardButton::make(__('handlers.buttons.back'), callback_data: "{$day->date->format('d.m.Y')}@timetable"))
             ->showMenu();
     }
 

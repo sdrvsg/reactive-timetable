@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Schema\Blueprint;
@@ -12,6 +13,7 @@ use Illuminate\Notifications\Notifiable;
  * @property string $username
  * @property string $identifier
  * @property boolean $is_blocked
+ * @property Carbon $was_online_at
  * @property Group $group
  * @property Group $leadership
  */
@@ -23,11 +25,13 @@ class Chat extends \Illuminate\Foundation\Auth\User
         'chat_id',
         'username',
         'group_id',
+        'was_online_at',
     ];
 
     protected function casts(): array
     {
         return [
+            'was_online_at' => 'datetime',
             'is_blocked' => 'boolean',
         ];
     }
@@ -42,6 +46,7 @@ class Chat extends \Illuminate\Foundation\Auth\User
         $table->string('chat_id')->unique();
         $table->string('username')->nullable();
         $table->boolean('is_blocked')->default(false);
+        $table->timestamp('was_online_at')->nullable();
     }
 
     public function group(): \Illuminate\Database\Eloquent\Relations\BelongsTo

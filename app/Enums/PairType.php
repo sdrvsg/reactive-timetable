@@ -16,11 +16,6 @@ enum PairType: string
 
     public function verbose(): string
     {
-        return match ($this) {
-            PairType::LECTURE => 'Лекция',
-            PairType::PRACTICE => 'Практика',
-            PairType::LAB => 'Лаба',
-            PairType::OTHER => 'Другое',
-        };
+        return __("const.pair_types.$this->value");
     }
 }

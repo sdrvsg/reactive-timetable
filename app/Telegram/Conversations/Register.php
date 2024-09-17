@@ -13,7 +13,7 @@ class Register extends Conversation
 {
     public function start(Nutgram $bot): void
     {
-        $bot->sendImagedMessage("<b>👋 Привет!</b>\n\nЧтобы начать пользоваться ботом, введи номер своей группы ниже:\n\n<b>Формат:</b> <i>xxxx-xxxxxxD</i>");
+        $bot->sendImagedMessage(__('handlers.register.start'));
         $this->next('group');
     }
 
@@ -22,7 +22,7 @@ class Register extends Conversation
         $number = $bot->message()->text;
         if (!preg_match('/^[0-9]{4}-[0-9]{6}D$/', $number)) {
 
-            $bot->sendImagedMessage("<b>⛔️ Неверный формат!</b>\nНужно: <i>xxxx-xxxxxxD</i>");
+            $bot->sendImagedMessage(__('handlers.register.error'));
             return;
 
         }
@@ -32,14 +32,14 @@ class Register extends Conversation
         if ($group->chats()->count() <= 1) $group->leader()->associate($chat)->save();
 
         $buttons = match ($bot->getUserData('action')) {
-            'group' => InlineKeyboardMarkup::make()->addRow(InlineKeyboardButton::make('Вернуться', switch_inline_query: 'timetable today')),
+            'group' => InlineKeyboardMarkup::make()->addRow(InlineKeyboardButton::make(__('handlers.register.back'), switch_inline_query: 'timetable today')),
             default => null
         };
 
         $bot->set('chat', $chat);
         $bot->deleteUserData('action');
 
-        $bot->sendImagedMessage("<b>Отлично!</b>\n\nТеперь можешь ввести /timetable для получения расписания", $buttons);
+        $bot->sendImagedMessage(__('handlers.register.success'), $buttons);
         $this->end();
     }
 }

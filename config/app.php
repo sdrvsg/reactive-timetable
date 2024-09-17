@@ -14,6 +14,10 @@ return [
     */
 
     'name' => env('APP_NAME', 'Laravel'),
+    'version' => env('APP_VERSION', '0.1'),
+
+    'start_date' => env('APP_START_DATE', '02.09.2024'),
+    'end_date' => env('APP_END_DATE', '01.02.2025'),
 
     /*
     |--------------------------------------------------------------------------

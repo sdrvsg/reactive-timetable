@@ -17,23 +17,23 @@ class UpdatePair extends ImagedEditableInlineMenu
         if ($chat->cannot('update', $pair->day))
             return;
 
-        $this->menuText("$pair->text\n\n👉 Что поменять?")
+        $this->menuText(__('handlers.pair.start', ['timetable' => $pair->text]))
             ->clearButtons()
             ->addButtonRow(
-                InlineKeyboardButton::make('Вид занятия', callback_data: "$pair->id@type"),
-                InlineKeyboardButton::make('Название', callback_data: "$pair->id@name"),
+                InlineKeyboardButton::make(__('handlers.buttons.type'), callback_data: "$pair->id@type"),
+                InlineKeyboardButton::make(__('handlers.buttons.name'), callback_data: "$pair->id@name"),
             )
             ->addButtonRow(
-                InlineKeyboardButton::make('Преподаватель', callback_data: "$pair->id@teacher"),
-                InlineKeyboardButton::make('Группы', callback_data: "$pair->id@groups"),
+                InlineKeyboardButton::make(__('handlers.buttons.teacher'), callback_data: "$pair->id@teacher"),
+                InlineKeyboardButton::make(__('handlers.buttons.groups'), callback_data: "$pair->id@groups"),
             )
             ->addButtonRow(
-                InlineKeyboardButton::make('Место проведения', callback_data: "$pair->id@place"),
-                InlineKeyboardButton::make('Местами', callback_data: "$pair->id@number"),
+                InlineKeyboardButton::make(__('handlers.buttons.place'), callback_data: "$pair->id@place"),
+                InlineKeyboardButton::make(__('handlers.buttons.number'), callback_data: "$pair->id@number"),
             )
             ->addButtonRow(
-                InlineKeyboardButton::make($pair->is_present ? 'Удалить' : 'Добавить', callback_data: $pair->is_present ? "$pair->id@delete" : "$pair->id@add"),
-                InlineKeyboardButton::make('Назад', callback_data: "{$pair->day->id}@day"),
+                InlineKeyboardButton::make($pair->is_present ? __('handlers.buttons.delete') : __('handlers.buttons.add'), callback_data: $pair->is_present ? "$pair->id@delete" : "$pair->id@add"),
+                InlineKeyboardButton::make(__('handlers.buttons.back'), callback_data: "{$pair->day->id}@day"),
             )
             ->showMenu();
     }
@@ -75,10 +75,10 @@ class UpdatePair extends ImagedEditableInlineMenu
         }
 
         $buttons = array_map(fn (int $number) => InlineKeyboardButton::make(strval($number), callback_data: "$pair->id.$number@number"), array_filter(range(1, 8), fn (int $number) => $number !== $pair->number));
-        $this->menuText("{$pair->day->text}\n\n👉 С какой парой поменять местами?")
+        $this->menuText(__('handlers.pair.number', ['timetable' => $pair->day->text]))
             ->clearButtons()
             ->addButtonRow(... $buttons)
-            ->addButtonRow(InlineKeyboardButton::make('Назад', callback_data: "$pair->id@update"))
+            ->addButtonRow(InlineKeyboardButton::make(__('handlers.buttons.back'), callback_data: "$pair->id@update"))
             ->showMenu();
     }
 
@@ -103,10 +103,10 @@ class UpdatePair extends ImagedEditableInlineMenu
         }
 
         $buttons = array_map(fn (PairType $type) => InlineKeyboardButton::make(($pair->type === $type ? '• ' : '') . $type->verbose(), callback_data: "$pair->id.$type->value@type"), PairType::cases());
-        $this->menuText("$pair->text\n\n👉 Укажи вид занятия")
+        $this->menuText(__('handlers.pair.type', ['timetable' => $pair->text]))
             ->clearButtons()
             ->addButtonRow(... $buttons)
-            ->addButtonRow(InlineKeyboardButton::make('Назад', callback_data: "$pair->id@update"))
+            ->addButtonRow(InlineKeyboardButton::make(__('handlers.buttons.back'), callback_data: "$pair->id@update"))
             ->showMenu();
     }
 
@@ -131,9 +131,9 @@ class UpdatePair extends ImagedEditableInlineMenu
         }
 
         $bot->setUserData('pair', $pair->id);
-        $this->menuText("$pair->text\n\n👉 Введи название пары\nТекущее название: <code>$pair->name</code>")
+        $this->menuText(__('handlers.pair.name', ['timetable' => $pair->text, 'value' => $pair->name]))
             ->clearButtons()
-            ->addButtonRow(InlineKeyboardButton::make('Назад', callback_data: "$pair->id@update"))
+            ->addButtonRow(InlineKeyboardButton::make(__('handlers.buttons.back'), callback_data: "$pair->id@update"))
             ->orNext('name')
             ->showMenu();
     }
@@ -159,9 +159,9 @@ class UpdatePair extends ImagedEditableInlineMenu
         }
 
         $bot->setUserData('pair', $pair->id);
-        $this->menuText("$pair->text\n\n👉 Введи преподавателя\nСейчас: <code>$pair->teacher</code>")
+        $this->menuText(__('handlers.pair.teacher', ['timetable' => $pair->text, 'value' => $pair->teacher]))
             ->clearButtons()
-            ->addButtonRow(InlineKeyboardButton::make('Назад', callback_data: "$pair->id@update"))
+            ->addButtonRow(InlineKeyboardButton::make(__('handlers.buttons.back'), callback_data: "$pair->id@update"))
             ->orNext('teacher')
             ->showMenu();
     }
@@ -187,9 +187,9 @@ class UpdatePair extends ImagedEditableInlineMenu
         }
 
         $bot->setUserData('pair', $pair->id);
-        $this->menuText("$pair->text\n\n👉 Введи место проведения\nСейчас: <code>$pair->place</code>")
+        $this->menuText(__('handlers.pair.place', ['timetable' => $pair->text, 'value' => $pair->place]))
             ->clearButtons()
-            ->addButtonRow(InlineKeyboardButton::make('Назад', callback_data: "$pair->id@update"))
+            ->addButtonRow(InlineKeyboardButton::make(__('handlers.buttons.back'), callback_data: "$pair->id@update"))
             ->orNext('place')
             ->showMenu();
     }
@@ -215,9 +215,9 @@ class UpdatePair extends ImagedEditableInlineMenu
         }
 
         $bot->setUserData('pair', $pair->id);
-        $this->menuText("$pair->text\n\n👉 Введи группы / подгруппы\nСейчас: <code>$pair->groups</code>")
+        $this->menuText(__('handlers.pair.groups', ['timetable' => $pair->text, 'value' => $pair->groups]))
             ->clearButtons()
-            ->addButtonRow(InlineKeyboardButton::make('Назад', callback_data: "$pair->id@update"))
+            ->addButtonRow(InlineKeyboardButton::make(__('handlers.buttons.back'), callback_data: "$pair->id@update"))
             ->orNext('groups')
             ->showMenu();
     }
@@ -262,11 +262,11 @@ class UpdatePair extends ImagedEditableInlineMenu
 
         }
 
-        $this->menuText("$pair->text\n\n👉 Точно отменить пару?")
+        $this->menuText(__('handlers.pair.delete', ['timetable' => $pair->text]))
             ->clearButtons()
             ->addButtonRow(
-                InlineKeyboardButton::make('Да', callback_data: "$pair->id.yes@delete"),
-                InlineKeyboardButton::make('Назад', callback_data: "$pair->id@update"),
+                InlineKeyboardButton::make(__('handlers.buttons.yes'), callback_data: "$pair->id.yes@delete"),
+                InlineKeyboardButton::make(__('handlers.buttons.back'), callback_data: "$pair->id@update"),
             )
             ->showMenu();
     }

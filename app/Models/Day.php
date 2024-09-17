@@ -62,16 +62,26 @@ class Day extends Model
             get: function (mixed $value, array $attributes) {
                 $date = mb_ucfirst($this->date->translatedFormat('l, d.m.Y'));
                 $leader = $this->group->leader->chat_id;
-                $leader_name = $this->group->leader->username ?? 'Староста';
-                $c = $this->comment ? "\n\n<blockquote>$this->comment\n— <a href='tg://user?id=$leader'>$leader_name</a></blockquote>" : '';
+                $leader_name = $this->group->leader->username ?? __('timetable.day.leader');
+
+                $c = $this->comment ? __('timetable.day.comment', [
+                    'comment' => $this->comment,
+                    'leader' => $leader,
+                    'name' => $leader_name
+                ]) : '';
 
                 $pairs = $this->pairs()
                     ->where('is_present', true)
                     ->get()
                     ->map(fn (Pair $pair) => $pair->text)
-                    ->implode("\n\n") ?: '<b>🎉🎉🎉 Пар нет</b>';
+                    ->implode("\n\n") ?: __('timetable.day.weekend');
 
-                return "<b>$date</b> для группы <b>{$this->group->number}</b>\n\n$pairs$c";
+                return __('timetable.day.text', [
+                    'date' => $date,
+                    'group' => $this->group->number,
+                    'pairs' => $pairs,
+                    'comment' => $c,
+                ]);
             }
         );
     }

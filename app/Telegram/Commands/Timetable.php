@@ -6,7 +6,6 @@ use App\Services\TimetableService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use SergiX44\Nutgram\Nutgram;
 use SergiX44\Nutgram\Handlers\Type\Command;
 use SergiX44\Nutgram\Telegram\Properties\ParseMode;
@@ -16,10 +15,6 @@ use SergiX44\Nutgram\Telegram\Types\Input\InputTextMessageContent;
 
 class Timetable extends Command
 {
-    protected string $command = 'timetable';
-
-    protected ?string $description = 'Узнать нормальное расписание';
-
     public function handle(Nutgram $bot): void
     {
         \App\Telegram\Conversations\Timetable::begin($bot);
@@ -30,7 +25,7 @@ class Timetable extends Command
         try {
 
             $d = Carbon::parseFromLocale($bot->inlineQuery()->query ?? 'today', 'ru');
-            if ($d < Carbon::parse('02.09.2024') || $d > Carbon::parse('01.02.2025'))
+            if ($d < Carbon::parse(config('app.start_date')) || $d > Carbon::parse(config('app.end_date')))
                 return;
 
         } catch (\Throwable $e) {
@@ -45,7 +40,7 @@ class Timetable extends Command
         $bot->asResponse()->answerInlineQuery(
             results: $group ? [InlineQueryResultArticle::make(
                 id: "timetable:{$d->format('d.m.Y')}",
-                title: "Расписание",
+                title: __('timetable.inline.title'),
                 input_message_content: InputTextMessageContent::make(
                     message_text: $timetableService->getTimetable($group, $d)->text,
                     parse_mode: ParseMode::HTML,
@@ -55,7 +50,7 @@ class Timetable extends Command
             )] : [],
             cache_time: 0,
             is_personal: true,
-            button: !$group ? InlineQueryResultsButton::make('Указать группу', start_parameter: 'group') : null,
+            button: !$group ? InlineQueryResultsButton::make(__('timetable.inline.button'), start_parameter: 'group') : null,
         );
     }
 }
