@@ -45,11 +45,13 @@ class Timetable extends Command
         $bot->asResponse()->answerInlineQuery(
             results: $group ? [InlineQueryResultArticle::make(
                 id: "timetable:{$d->format('d.m.Y')}",
-                title: "Расписание на {$d->translatedFormat('l, d.m.Y')}",
+                title: "Расписание",
                 input_message_content: InputTextMessageContent::make(
                     message_text: $timetableService->getTimetable($group, $d)->text,
                     parse_mode: ParseMode::HTML,
+                    disable_web_page_preview: true,
                 ),
+                description: $d->translatedFormat('l, d.m.Y'),
             )] : [],
             cache_time: 0,
             is_personal: true,
