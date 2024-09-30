@@ -56,21 +56,28 @@ class Parser:
         }
 
         for pair, time in zip(bs.select('.schedule__item_show'), bs.select('.schedule__time')):
-            data = {'number': pair_numbers[time.select_one('.schedule__time-item').text.strip()], 'is_present': False}
             if pair.text:
+                subpairs = [{}, {}, {}, {}, {}, {}, {}, {}]
+                number = pair_numbers[time.select_one('.schedule__time-item').text.strip()]
                 delimiter = ' / '
-                data['is_present'] = True
-                data['type'] = pair_types.get(pair.select_one('.schedule__lesson-type-chip').text.strip(), 'other')
-                data['name'] = delimiter.join(list(map(lambda p: p.text.strip(), pair.select('.schedule__discipline'))))
-                data['place'] = delimiter.join(list(map(lambda p: p.text.strip(), pair.select('.schedule__place'))))
-                data['teacher'] = delimiter.join(list(map(lambda p: p.text.strip(), pair.select('.schedule__teacher'))))
-                data['groups'] = delimiter.join(list(map(lambda p: p.text.strip().split('-')[0], pair.select('.schedule__groups .caption-text'))))
-            pairs.append(data)
 
-        exists = [n['number'] for n in pairs]
-        for number in range(1, 9):
-            if number not in exists:
-                pairs.append({'number': number, 'is_present': False})
+                for i, subpair in enumerate(map(lambda p: p.text.strip(), pair.select('.schedule__lesson-type-chip'))):
+                    subpairs[i]['type'] = pair_types.get(subpair, 'other')
+
+                for i, subpair in enumerate(map(lambda p: p.text.strip(), pair.select('.schedule__discipline'))):
+                    subpairs[i]['name'] = subpair
+
+                for i, subpair in enumerate(map(lambda p: p.text.strip(), pair.select('.schedule__place'))):
+                    subpairs[i]['place'] = subpair
+
+                for i, subpair in enumerate(map(lambda p: p.text.strip(), pair.select('.schedule__teacher'))):
+                    subpairs[i]['teacher'] = subpair
+
+                for i, subpair in enumerate(map(lambda p: p.text.strip(), pair.select('.schedule__groups'))):
+                    groups = subpair.split() if '-' in subpair else [subpair]
+                    subpairs[i]['groups'] = delimiter.join(list(map(lambda p: p.split('-')[0], groups)))
+
+                pairs.extend(list(map(lambda s: dict(number=number, **s), filter(lambda p: p, subpairs))))
         return pairs
 
 

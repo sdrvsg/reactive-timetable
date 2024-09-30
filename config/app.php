@@ -14,6 +14,7 @@ return [
     */
 
     'name' => env('APP_NAME', 'Laravel'),
+    'closed' => env('APP_MAINTENANCE', false),
     'version' => env('APP_VERSION', '0.1'),
 
     'start_date' => env('APP_START_DATE', '02.09.2024'),

@@ -5,6 +5,7 @@ namespace App\Telegram\Conversations;
 use App\Enums\PairType;
 use App\Models\Day;
 use App\Models\Pair;
+use App\Models\Teacher;
 use Illuminate\Support\Facades\Auth;
 use SergiX44\Nutgram\Nutgram;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton;
@@ -32,7 +33,7 @@ class UpdatePair extends ImagedEditableInlineMenu
                 InlineKeyboardButton::make(__('handlers.buttons.number'), callback_data: "$pair->id@number"),
             )
             ->addButtonRow(
-                InlineKeyboardButton::make($pair->is_present ? __('handlers.buttons.delete') : __('handlers.buttons.add'), callback_data: $pair->is_present ? "$pair->id@delete" : "$pair->id@add"),
+                InlineKeyboardButton::make(__('handlers.buttons.delete'), callback_data: "$pair->id@delete"),
                 InlineKeyboardButton::make(__('handlers.buttons.back'), callback_data: "{$pair->day->id}@day"),
             )
             ->showMenu();
@@ -60,10 +61,6 @@ class UpdatePair extends ImagedEditableInlineMenu
             return;
 
         if ($pair_number && in_array(intval($pair_number), range(1, 8))) {
-
-            $other = $pair->day->pairs()->where('number', intval($pair_number))->first();
-            $other->number = $pair->number;
-            $other->save();
 
             $pair->number = intval($pair_number);
             $pair->save();
@@ -149,7 +146,7 @@ class UpdatePair extends ImagedEditableInlineMenu
 
         if (!$bot->message()->from->is_bot && ($teacher = $bot->message()->text)) {
 
-            $pair->teacher = $teacher;
+            $pair->teacher()->associate(Teacher::query()->firstOrCreate(['name' => $teacher]));
             $pair->save();
 
             $this->end();
@@ -159,7 +156,7 @@ class UpdatePair extends ImagedEditableInlineMenu
         }
 
         $bot->setUserData('pair', $pair->id);
-        $this->menuText(__('handlers.pair.teacher', ['timetable' => $pair->text, 'value' => $pair->teacher]))
+        $this->menuText(__('handlers.pair.teacher', ['timetable' => $pair->text, 'value' => $pair->teacher->name]))
             ->clearButtons()
             ->addButtonRow(InlineKeyboardButton::make(__('handlers.buttons.back'), callback_data: "$pair->id@update"))
             ->orNext('teacher')
@@ -230,7 +227,7 @@ class UpdatePair extends ImagedEditableInlineMenu
         if ($chat->cannot('update', $pair->day))
             return;
 
-        $pair->is_present = true;
+        // $pair->is_present = true;
         $pair->save();
 
         $this->end();
@@ -248,15 +245,9 @@ class UpdatePair extends ImagedEditableInlineMenu
 
         if ($agree === 'yes') {
 
-            $pair->is_present = false;
-            $pair->type = null;
-            $pair->name = null;
-            $pair->place = null;
-            $pair->teacher = null;
-            $pair->groups = null;
-            $pair->save();
-
+            $pair->delete();
             $this->end();
+
             UpdateDay::begin($bot, data: ['day' => $pair->day]);
             return;
 

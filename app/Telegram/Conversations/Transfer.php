@@ -11,7 +11,9 @@ class Transfer extends Conversation
 {
     public function start(Nutgram $bot): void
     {
+        /** @var Chat $user */
         $user = Auth::user();
+
         $chats = $user->leadership
             ->chats()
             ->whereNot('id', $user->id)
@@ -28,6 +30,7 @@ class Transfer extends Conversation
         $id = $bot->message()->text;
         $chat = Chat::query()->where('chat_id', $id)->orWhere('username', $id)->first();
 
+        /** @var Chat $user */
         $user = Auth::user();
         $group = $user->leadership;
 

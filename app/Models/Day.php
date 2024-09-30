@@ -13,8 +13,12 @@ use Illuminate\Notifications\Notifiable;
 /**
  * @property int $id
  * @property Carbon $date
- * @property string $text
  * @property string $comment
+ *
+ * @property string $text
+ * @property int $week
+ * @property bool $is_odd
+ *
  * @property Group $group
  * @property Collection $pairs
  * @method static self find(int $id)
@@ -70,19 +74,53 @@ class Day extends Model
                     'name' => $leader_name
                 ]) : '';
 
-                $pairs = $this->pairs()
-                    ->where('is_present', true)
-                    ->get()
-                    ->map(fn (Pair $pair) => $pair->text)
-                    ->implode("\n\n") ?: __('timetable.day.weekend');
+                $pairs = [];
+                foreach ($this->pairs->groupBy('number') as $number => $pair) {
+                    $pairs[] = __('timetable.day.pair', [
+                        'time' => $this->getTimeString($number),
+                        'pairs' => $pair->map(fn (Pair $pair) => $pair->text)->implode("\n\n"),
+                    ]);
+                }
 
                 return __('timetable.day.text', [
                     'date' => $date,
                     'group' => $this->group->number,
-                    'pairs' => $pairs,
+                    'pairs' => implode("\n", $pairs) ?: __('timetable.day.weekend'),
                     'comment' => $c,
                 ]);
             }
         );
+    }
+
+    public function week(): Attribute
+    {
+        return Attribute::make(
+            get: function (mixed $value, array $attributes) {
+                return $this->date->diffInWeeks(\Illuminate\Support\Carbon::parse(config('app.start_date')));
+            }
+        );
+    }
+
+    public function isOdd(): Attribute
+    {
+        return Attribute::make(
+            get: function (mixed $value, array $attributes) {
+                return boolval($this->week % 2);
+            }
+        );
+    }
+
+    protected function getTimeString(int $number): string
+    {
+        return match ($number) {
+            1 => __('timetable.pair.time', ['icon' => '😵‍💫', 'number' => $number, 'time' => '8:00 — 9:35']),
+            2 => __('timetable.pair.time', ['icon' => '😵‍💫', 'number' => $number, 'time' => '9:45 — 11:20']),
+            3 => __('timetable.pair.time', ['icon' => '🙃', 'number' => $number, 'time' => '11:30 — 13:05']),
+            4 => __('timetable.pair.time', ['icon' => '🙃', 'number' => $number, 'time' => '13:30 — 15:05']),
+            5 => __('timetable.pair.time', ['icon' => '😞', 'number' => $number, 'time' => '15:15 — 16:50']),
+            6 => __('timetable.pair.time', ['icon' => '😞', 'number' => $number, 'time' => '17:00 — 18:35']),
+            7 => __('timetable.pair.time', ['icon' => '🤩', 'number' => $number, 'time' => '18:45 — 20:15']),
+            8 => __('timetable.pair.time', ['icon' => '🤩', 'number' => $number, 'time' => '20:25 — 21:55']),
+        };
     }
 }
