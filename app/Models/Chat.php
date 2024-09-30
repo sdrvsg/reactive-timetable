@@ -9,8 +9,10 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Notifications\Notifiable;
 
 /**
+ * @property int $id
  * @property string $chat_id
  * @property string $username
+ * @property string $name
  * @property string $identifier
  * @property boolean $is_blocked
  * @property Carbon $was_online_at
@@ -24,6 +26,7 @@ class Chat extends \Illuminate\Foundation\Auth\User
     protected $fillable = [
         'chat_id',
         'username',
+        'name',
         'group_id',
         'was_online_at',
     ];
@@ -45,6 +48,7 @@ class Chat extends \Illuminate\Foundation\Auth\User
 
         $table->string('chat_id')->unique();
         $table->string('username')->nullable();
+        $table->string('name')->nullable();
         $table->boolean('is_blocked')->default(false);
         $table->timestamp('was_online_at')->nullable();
     }
@@ -59,10 +63,15 @@ class Chat extends \Illuminate\Foundation\Auth\User
         return $this->hasOne(Group::class, 'leader_id');
     }
 
+    public function maggots(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    {
+        return $this->morphMany(Maggot::class, 'maggotable');
+    }
+
     public function identifier(): Attribute
     {
         return Attribute::make(
-            get: fn (mixed $value, array $attributes) => $this->username ?? $this->chat_id
+            get: fn (mixed $value, array $attributes) => $this->name ?? $this->username ?? $this->chat_id
         );
     }
 }

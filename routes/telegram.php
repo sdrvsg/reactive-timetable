@@ -6,16 +6,23 @@ use App\Telegram\Conversations\Group;
 use App\Telegram\Conversations\Transfer;
 use App\Telegram\Handlers\Commands;
 use App\Telegram\Handlers\Help;
+use App\Telegram\Handlers\Maggot;
 use App\Telegram\Middleware\ForDevelopers;
 use App\Telegram\Middleware\ForLeaders;
 use App\Telegram\Middleware\ForPrivate;
+use App\Telegram\Middleware\MaintenanceMode;
 use App\Telegram\Middleware\Registered;
 use App\Telegram\Middleware\RetrieveAccount;
 use SergiX44\Nutgram\Nutgram;
 
+$bot->middleware(MaintenanceMode::class);
 $bot->middleware(RetrieveAccount::class);
+
 $bot->onCommand('start{param}', Help::class);
 $bot->onInlineQuery([Timetable::class, 'query']);
+
+$bot->onInlineQueryText('p{query}', Maggot::class);
+$bot->onChosenInlineResultQuery('p{query}', [Maggot::class, 'vote']);
 
 $bot->group(function (Nutgram $bot) {
 

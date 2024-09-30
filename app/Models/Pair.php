@@ -11,18 +11,21 @@ use Illuminate\Notifications\Notifiable;
 
 /**
  * @property integer $id
+ *
  * @property string $text
  * @property string $icon
- * @property string $time_string
+ *
  * @property integer $number
- * @property boolean $is_present
  * @property ?PairType $type
- * @property string $name
- * @property string $place
- * @property string $teacher
- * @property string $groups
+ * @property ?string $name
+ * @property ?string $place
+ * @property ?string $groups
+ *
  * @property Day $day
+ * @property Teacher $teacher
+ *
  * @method static self find(int $id)
+ * @method static self create(array $attributes)
  */
 class Pair extends Model
 {
@@ -30,19 +33,17 @@ class Pair extends Model
 
     protected $fillable = [
         'number',
-        'is_present',
         'type',
         'name',
         'place',
-        'teacher',
         'groups',
         'day_id',
+        'teacher_id',
     ];
 
     protected function casts(): array
     {
         return [
-            'is_present' => 'boolean',
             'type' => PairType::class,
         ];
     }
@@ -52,14 +53,14 @@ class Pair extends Model
     {
         $table->id();
         $table->timestamps();
+
         $table->foreignIdFor(Day::class)->constrained()->cascadeOnDelete();
+        $table->foreignIdFor(Teacher::class)->nullable()->constrained()->nullOnDelete();
 
         $table->integer('number');
-        $table->boolean('is_present')->default(false);
         $table->string('type')->nullable();
         $table->string('name')->nullable();
         $table->string('place')->nullable();
-        $table->string('teacher')->nullable();
         $table->string('groups')->nullable();
     }
 
@@ -68,36 +69,22 @@ class Pair extends Model
         return $this->belongsTo(Day::class);
     }
 
+    public function teacher(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Teacher::class);
+    }
+
     public function text(): Attribute
     {
         return Attribute::make(
             get: function (mixed $value, array $attributes) {
                 return __('timetable.pair.text', [
-                    'time' => $this->time_string,
                     'icon' => $this->icon,
                     'name' => $this->name ?? __('timetable.pair.blanks.name'),
-                    'teacher' => $this->teacher ?? __('timetable.pair.blanks.teacher'),
+                    'teacher' => $this->teacher->name ?? __('timetable.pair.blanks.teacher'),
                     'place' => $this->place ?? __('timetable.pair.blanks.place'),
                     'groups' => $this->groups ? __('timetable.pair.groups', ['groups' => $this->groups]) : '',
                 ]);
-            }
-        );
-    }
-
-    public function timeString(): Attribute
-    {
-        return Attribute::make(
-            get: function (mixed $value, array $attributes) {
-                return match ($this->number) {
-                    1 => __('timetable.pair.time', ['icon' => '😵‍💫', 'number' => $this->number, 'time' => '8:00 — 9:35']),
-                    2 => __('timetable.pair.time', ['icon' => '😵‍💫', 'number' => $this->number, 'time' => '9:45 — 11:20']),
-                    3 => __('timetable.pair.time', ['icon' => '🙃', 'number' => $this->number, 'time' => '11:30 — 13:05']),
-                    4 => __('timetable.pair.time', ['icon' => '🙃', 'number' => $this->number, 'time' => '13:30 — 15:05']),
-                    5 => __('timetable.pair.time', ['icon' => '😞', 'number' => $this->number, 'time' => '15:15 — 16:50']),
-                    6 => __('timetable.pair.time', ['icon' => '😞', 'number' => $this->number, 'time' => '17:00 — 18:35']),
-                    7 => __('timetable.pair.time', ['icon' => '🤩', 'number' => $this->number, 'time' => '18:45 — 20:15']),
-                    8 => __('timetable.pair.time', ['icon' => '🤩', 'number' => $this->number, 'time' => '20:25 — 21:55']),
-                };
             }
         );
     }

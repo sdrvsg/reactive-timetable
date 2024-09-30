@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Day;
 use App\Models\Group;
 use App\Models\Pair;
+use App\Models\Teacher;
 use Carbon\Carbon;
 use Carbon\WeekDay;
 use Illuminate\Support\Facades\Process;
@@ -13,20 +14,35 @@ class TimetableService
 {
     public function getTimetable(Group $group, Carbon $date, bool $refresh = false): Day
     {
-        if (!($day = $group->days()->whereDate('date', $date)->first()) || !$day->pairs()->where('is_present', true)->exists() || $refresh) {
+        $day = $group->days()->whereDate('date', $date)->first();
+        $day = $day ?? Day::query()->create(['date' => $date, 'group_id' => $group->id]);
 
-            $day = $day ?? Day::query()->create(['date' => $date, 'group_id' => $group->id]);
+        if ($refresh || !$day->pairs()->exists()) {
+
+            $day->pairs()->delete();
             if ($refresh) {
 
                 $day->comment = null;
                 $day->save();
-                $day->pairs()->delete();
 
             }
 
-            $result = Process::path(base_path('scripts'))->run(". .venv/bin/activate; python timetable.py $group->number {$date->format('d.m.Y')}");
-            $pairs = json_decode($result->output(), true);
-            foreach ($pairs['data'] as $pair) Pair::query()->create($pair + ['day_id' => $day->id]);
+            if ($date->weekday() !== WeekDay::Sunday->value) {
+
+                $result = Process::path(base_path('scripts'))->run(". .venv/bin/activate; python timetable.py $group->number {$date->format('d.m.Y')}");
+                $pairs = json_decode($result->output(), true);
+
+                foreach ($pairs['data'] as $pair) {
+
+                    $teacher = Teacher::query()->firstOrCreate(['name' => $pair['teacher']]);
+                    Pair::create($pair + [
+                        'day_id' => $day->id,
+                        'teacher_id' => $teacher->id,
+                    ]);
+
+                }
+
+            }
 
         }
 

@@ -2,6 +2,7 @@
 
 namespace App\Telegram\Conversations;
 
+use App\Models\Chat;
 use App\Models\Group as Model;
 use Illuminate\Support\Facades\Auth;
 use SergiX44\Nutgram\Conversations\Conversation;
@@ -25,8 +26,10 @@ class Group extends Conversation
 
         }
 
-        $group = Model::query()->firstOrCreate(['number' => $number]);
+        /** @var Chat $user */
         $user = Auth::user();
+
+        $group = Model::query()->firstOrCreate(['number' => $number]);
         $old_group = $user->group;
 
         if ($group->is($old_group)) {
