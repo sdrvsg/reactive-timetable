@@ -16,6 +16,9 @@ return [
 <code>@ssauReactiveBot {сегодня, завтра, 11 сен, 15.12.2024...}</code>
 <i>Скинуть расписание указанной даты в чат</i>
 
+<code>@ssauReactiveBot p {Имя препода или одногруппника}</code>
+<i>Проголосовать за пидораса текущего дня</i>
+
 <blockquote>Бот находится в состоянии beta-теста, просьба баги и предложения кидать на <a href='https://github.com/sdrvsg/reactive-timetable/issues'>GitHub</a>
 
 Версия: :version</blockquote>

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @property int $id
@@ -21,6 +22,8 @@ use Illuminate\Notifications\Notifiable;
  *
  * @property Group $group
  * @property Collection $pairs
+ * @property Collection $teachers
+ * @property Collection $maggots
  * @method static self find(int $id)
  */
 class Day extends Model
@@ -60,6 +63,11 @@ class Day extends Model
         return $this->hasMany(Pair::class)->orderBy('number');
     }
 
+    public function maggots(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Maggot::class);
+    }
+
     public function text(): Attribute
     {
         return Attribute::make(
@@ -82,11 +90,27 @@ class Day extends Model
                     ]);
                 }
 
+                $maggots = $this->maggots->groupBy('maggotable')->sortBy(fn (Collection $m) => count($m), descending: true)->take(3);
+                $m = [];
+                $place = 0;
+                Log::info($maggots);
+
+                foreach ($maggots as $values)
+                    $m[] = __('timetable.day.maggot', [
+                        'place' => match (++$place) {1 => '🥇', 2 => '🥈', 3 => '🥉'},
+                        'maggot' => $values->first()->maggotable->identifier ?? $values->first()->maggotable->name,
+                    ]);
+
                 return __('timetable.day.text', [
                     'date' => $date,
+                    'week' => $this->week,
+                    'odd_even' => $this->is_odd ? __('timetable.day.odd') : __('timetable.day.even'),
                     'group' => $this->group->number,
                     'pairs' => implode("\n", $pairs) ?: __('timetable.day.weekend'),
                     'comment' => $c,
+                    'maggots' => $place ? __('timetable.day.maggots', [
+                        'maggots' => implode("\n", $m),
+                    ]) : '',
                 ]);
             }
         );
@@ -96,7 +120,7 @@ class Day extends Model
     {
         return Attribute::make(
             get: function (mixed $value, array $attributes) {
-                return $this->date->diffInWeeks(\Illuminate\Support\Carbon::parse(config('app.start_date')));
+                return floor($this->date->diffInWeeks(\Illuminate\Support\Carbon::parse(config('app.start_date')), absolute: true) + 1);
             }
         );
     }
