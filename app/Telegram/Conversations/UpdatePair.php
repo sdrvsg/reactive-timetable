@@ -245,10 +245,11 @@ class UpdatePair extends ImagedEditableInlineMenu
 
         if ($agree === 'yes') {
 
+            $day = $pair->day;
             $pair->delete();
             $this->end();
 
-            UpdateDay::begin($bot, data: ['day' => $pair->day]);
+            UpdateDay::begin($bot, data: ['day' => $day]);
             return;
 
         }
