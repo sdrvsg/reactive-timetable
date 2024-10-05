@@ -26,8 +26,9 @@ return [
     'buttons' => [
         'today' => "Сегодня",
         'post' => "Пост",
-        'refresh' => "Обновить",
-        'edit' => "Изменить",
+        'refresh' => "🔄",
+        'edit' => "Пары",
+        'deadlines' => "Дедлайн",
         'send' => "Отправить",
         'back' => "Назад",
         'type' => "Вид занятия",
@@ -39,6 +40,8 @@ return [
         'delete' => "Удалить",
         'add' => "Добавить",
         'yes' => "Да",
+        'subject' => "Предмет",
+        'description' => "Описание",
     ],
     'register' => [
         'start' => "<b>👋 Привет!</b>\n\nЧтобы начать пользоваться ботом, введи номер своей группы ниже:\n\n<b>Формат:</b> <i>xxxx-xxxxxxD</i>",
@@ -63,7 +66,9 @@ return [
         'comment' => ":timetable\n\n👉 Все одногруппники получат уведомления\nМожно отправить необязательный комментарий",
     ],
     'day' => [
-        'start' => ":timetable\n\n👉 Какую пару нужно изменить?"
+        'start' => ":timetable\n\n👉 Какую пару нужно изменить?",
+        'deadlines' => ":timetable\n\n👉 Какой дедлайн поменять?",
+        'deadline' => ":timetable\n\n👉 Введите название предмета",
     ],
     'pair' => [
         'start' => ":timetable\n\n👉 Что поменять?",
@@ -74,5 +79,11 @@ return [
         'place' => ":timetable\n\n👉 Введи место проведения\nСейчас: <code>:value</code>",
         'groups' => ":timetable\n\n👉 Введи группы / подгруппы\nСейчас: <code>:value</code>",
         'delete' => ":timetable\n\n👉 Точно отменить пару?",
+    ],
+    'deadline' => [
+        'start' => ":timetable\n\n👉 Что поменять?",
+        'subject' => ":timetable\n\n👉 Введите название предмета\nТекущее название: <code>:value</code>",
+        'description' => ":timetable\n\n👉 Укажите описание\nТекущее описание:\n\n:value",
+        'delete' => ":timetable\n\n👉 Точно отменить дедлайн?",
     ],
 ];

@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Log;
  *
  * @property Group $group
  * @property Collection $pairs
+ * @property Collection $deadlines
  * @property Collection $teachers
  * @property Collection $maggots
  * @method static self find(int $id)
@@ -63,6 +64,11 @@ class Day extends Model
         return $this->hasMany(Pair::class)->orderBy('number');
     }
 
+    public function deadlines(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Deadline::class);
+    }
+
     public function maggots(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Maggot::class);
@@ -90,10 +96,11 @@ class Day extends Model
                     ]);
                 }
 
+                $deadlines = $this->deadlines->map(fn (Deadline $deadline) => $deadline->text)->implode("\n");
+
                 $maggots = $this->maggots->groupBy('maggotable')->sortBy(fn (Collection $m) => count($m), descending: true)->take(3);
                 $m = [];
                 $place = 0;
-                Log::info($maggots);
 
                 foreach ($maggots as $values)
                     $m[] = __('timetable.day.maggot', [
@@ -107,6 +114,7 @@ class Day extends Model
                     'odd_even' => $this->is_odd ? __('timetable.day.odd') : __('timetable.day.even'),
                     'group' => $this->group->number,
                     'pairs' => implode("\n", $pairs) ?: __('timetable.day.weekend'),
+                    'deadlines' => $deadlines ?: __('timetable.day.procrastination'),
                     'comment' => $c,
                     'maggots' => $place ? __('timetable.day.maggots', [
                         'maggots' => implode("\n", $m),

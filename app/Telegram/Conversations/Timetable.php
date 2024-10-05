@@ -28,6 +28,7 @@ class Timetable extends ImagedEditableInlineMenu
             $edit[] = InlineKeyboardButton::make(__('handlers.buttons.post'), callback_data: "$day->id@post");
             $edit[] = InlineKeyboardButton::make(__('handlers.buttons.refresh'), callback_data: "$day->id@refresh");
             $edit[] = InlineKeyboardButton::make(__('handlers.buttons.edit'), callback_data: "$day->id@update");
+            $edit[] = InlineKeyboardButton::make(__('handlers.buttons.deadlines'), callback_data: "$day->id@deadlines");
 
         }
 
@@ -63,6 +64,12 @@ class Timetable extends ImagedEditableInlineMenu
     {
         $this->end();
         UpdateDay::begin($bot, data: ['day' => Day::find(intval($bot->callbackQuery()->data))]);
+    }
+
+    public function deadlines(Nutgram $bot): void
+    {
+        $this->end();
+        UpdateDeadlines::begin($bot, data: ['day' => Day::find(intval($bot->callbackQuery()->data))]);
     }
 
     public function post(Nutgram $bot): void

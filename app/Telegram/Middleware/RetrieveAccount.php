@@ -10,7 +10,7 @@ class RetrieveAccount
 {
     public function __invoke(Nutgram $bot, $next): void
     {
-        $chat_id = $bot->chatId() ?? $bot->callbackQuery()?->message->chat->id ?? $bot->inlineQuery()?->from->id ?? $bot->chosenInlineResult()->from->id;
+        $chat_id = $bot->userId() ?? $bot->callbackQuery()?->from->id ?? $bot->inlineQuery()?->from->id ?? $bot->chosenInlineResult()?->from->id;
         $chat = Chat::query()->where('chat_id', $chat_id)->first();
 
         if ($chat) {

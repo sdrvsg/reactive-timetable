@@ -73,6 +73,7 @@ class TimetableService
             WeekDay::Thursday->value => $d->is($date) ? '• Чт' : 'Чт',
             WeekDay::Friday->value => $d->is($date) ? '• Пт' : 'Пт',
             WeekDay::Saturday->value => $d->is($date) ? '• Сб' : 'Сб',
+            WeekDay::Sunday->value => $d->is($date) ? '• Вс' : 'Вс',
             default => '?',
         };
     }

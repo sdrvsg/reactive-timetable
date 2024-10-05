@@ -59,12 +59,9 @@ class Maggot
                     id: "chat:$chat->id",
                     title: $chat->identifier,
                     input_message_content: InputTextMessageContent::make(
-                        message_text: __('maggot.voted', ['candidate' => $chat->identifier]),
+                        message_text: __('maggot.voted_self', ['candidate' => $chat->identifier]),
                         parse_mode: ParseMode::HTML,
                         disable_web_page_preview: true,
-                    ),
-                    reply_markup: InlineKeyboardMarkup::make()->addRow(
-                        InlineKeyboardButton::make('Голосовать', switch_inline_query_current_chat: "p $chat->identifier"),
                     ),
                     description: __('maggot.candidate'),
                 ))
@@ -90,8 +87,23 @@ class Maggot
         $maggotable = $type::find(intval($id));
         $user = Auth::user();
 
+        $this->add($user, $maggotable);
+    }
+
+    public function instant(Nutgram $bot, ?string $end = null): void
+    {
+        $chat_id = $bot->message()->reply_to_message->from->id;
+        $chat = Chat::query()->where('chat_id', $chat_id)->first();
+        $user = Auth::user();
+
+        if ($this->add($user, $chat))
+            $this->message($bot, $user, $chat);
+    }
+
+    private function add(?Chat $user, Chat|Teacher|null $maggotable): bool
+    {
         if (!$user || !$maggotable)
-            return;
+            return false;
 
         $day = $user->group->days()->whereDate('date', now())->first();
         $day->maggots()->where('chat_id', $user->id)->delete();
@@ -101,5 +113,11 @@ class Maggot
         $maggot->chat()->associate($user);
         $maggot->maggotable()->associate($maggotable);
         $maggot->save();
+        return true;
+    }
+
+    private function message(Nutgram $bot, Chat $user, Chat|Teacher $maggotable): void
+    {
+        $bot->sendImagedMessage(__('maggot.voted', ['who' => $user->identifier, 'candidate' => $maggotable->identifier ?? $maggotable->name]));
     }
 }

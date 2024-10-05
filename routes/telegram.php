@@ -24,6 +24,9 @@ $bot->onInlineQuery([Timetable::class, 'query']);
 $bot->onInlineQueryText('p{query}', Maggot::class);
 $bot->onChosenInlineResultQuery('p{query}', [Maggot::class, 'vote']);
 
+$bot->onText('пидор{end}', [Maggot::class, 'instant']);
+$bot->onText('Пидор{end}', [Maggot::class, 'instant']);
+
 $bot->group(function (Nutgram $bot) {
 
     $bot->onCommand('timetable', Timetable::class);
